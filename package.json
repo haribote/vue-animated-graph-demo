@@ -18,10 +18,12 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "@types/animejs": "^2.0.0",
     "@types/lodash.ceil": "^4.0.3",
     "@types/lodash.floor": "^4.0.3",
     "@types/lodash.range": "^3.2.3",
     "@types/lodash.round": "^4.0.3",
+    "animejs": "^2.2.0",
     "axios": "^0.17.1",
     "lodash.ceil": "^4.0.4",
     "lodash.floor": "^4.0.4",

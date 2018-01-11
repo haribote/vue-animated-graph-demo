@@ -2,16 +2,21 @@ import Vue from 'vue'
 import range from 'lodash.range'
 import round from 'lodash.round'
 import ceil from 'lodash.ceil'
-import floor from 'lodash.floor'
+import * as anime from 'animejs'
 
 import getDigits from '../../core/get-digits'
 
 const Y_AXIS_LINES_LENGTH = 5
+let cid = 0
 
 export default Vue.extend({
   name: 'ChartLine',
 
   props: {
+    cid: {
+      type: String,
+      default: `chart-line-${cid++}`
+    },
     svgWidth: {
       type: Number,
       default: 1140
@@ -51,6 +56,14 @@ export default Vue.extend({
     yAxisUnit: {
       type: String,
       default: ''
+    }
+  },
+
+  data () {
+    return {
+      displayMaskWidth: 0,
+      displayFillOpacity: 0,
+      inAnimate: false
     }
   },
 
@@ -142,14 +155,78 @@ export default Vue.extend({
             })
         })
     },
-    xAxisLabelPropsList (): any[] {
+    xAxisLabelPropsList (): { value: number, transform: string }[] {
       return this.xAxisLabels
-        .map((label, index) => {
+        .map((label: number, index) => {
           return {
             value: label,
             transform: `translate(${round(this.xAxisStep * index, 2)})`
           }
         })
+    },
+    maskId (): string {
+      return `mask-${this.cid}`
+    },
+    maskRef (): string {
+      return `url(#${this.maskId})`
+    },
+    maskTransform (): string {
+      return `translate(${0} ${this.chartHeight * -1})`
+    }
+  },
+
+  methods: {
+    handleClickRunButton (): void {
+      this.animate()
+    },
+
+    animate (): void {
+      if (this.inAnimate) {
+        return
+      }
+
+      Object.assign(this, {
+        displayMaskWidth: 0,
+        displayFillOpacity: 0,
+        inAnimate: true
+      })
+
+      const coordsA = { width: 0 }
+      const coordsB = { fillOpacity: 0 }
+
+      const timeline = anime.timeline()
+        .add({
+          targets: coordsA,
+          width: this.chartWidth,
+          easing: 'linear',
+          duration: 300,
+          autoplay: false,
+          run: () => {
+            this.displayMaskWidth = coordsA.width
+          },
+          complete: () => {
+            this.displayMaskWidth = this.chartWidth
+          }
+        })
+        .add({
+          targets: coordsB,
+          fillOpacity: 1,
+          easing: 'easeOutExpo',
+          duration: 300,
+          autoplay: false,
+          run: () => {
+            this.displayFillOpacity = coordsB.fillOpacity
+          },
+          complete: () => {
+            this.displayFillOpacity = 1
+          }
+        })
+
+      timeline.complete = () => {
+        this.inAnimate = false
+      }
+      timeline
+        .play()
     }
   }
 })

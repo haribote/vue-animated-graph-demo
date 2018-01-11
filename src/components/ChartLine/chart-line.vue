@@ -1,6 +1,14 @@
 <template>
   <div class="chart-line">
+    <p>
+      <button type="button" :disabled="inAnimate" @click.prevent="handleClickRunButton">Run</button>
+    </p>
     <svg :viewBox="viewBox" :width="svgWidth" :height="svgHeight">
+      <defs>
+        <mask :id="maskId">
+          <rect x="0" y="0" :width="displayMaskWidth" :height="chartHeight" :transform="maskTransform" fill="#fff"></rect>
+        </mask>
+      </defs>
       <g class="chart-line__y-step-line">
         <path v-for="line in yAxisLinePropsList" :key="line.y" :d="line.d" :transform="line.transform"></path>
       </g>
@@ -10,10 +18,10 @@
         </g>
       </g>
       <g :transform="seriesLineTransform">
-        <g class="chart-line__series-line">
+        <g class="chart-line__series-line" :mask="maskRef">
           <polyline v-for="(line, i) in seriesLinePropsList" :key="i" :points="line.points" :stroke="line.color"></polyline>
         </g>
-        <g class="chart-line__series-dot">
+        <g class="chart-line__series-dot" :fill-opacity="displayFillOpacity">
           <g v-for="(series, i) in seriesDotPropsList" :key="i"  :fill="seriesLinePropsList[i].color">
             <circle v-for="(dot, j) in series" :key="j" cx="0" cy="0" :transform="dot.transform"></circle>
           </g>
