@@ -32,6 +32,22 @@
         @in-animate="handleInAnimateChartBar"
       />
     </div>
+
+    <div class="container">
+      <h2>Pie chart</h2>
+      <p>Annual visitors per team</p>
+      <p>
+        <span>Season: </span>
+        <select v-model="pieChartCurrentSeason" :disabled="isPieChartSeasonSelectorDisabled">
+          <option v-for="season in seasonOptionList" :key="season" :value="season">{{season}}</option>
+        </select>
+      </p>
+      <ChartPie
+        :series="pieChartCurrentSeasonList"
+        :pies="pipeChartPropsList"
+        @in-animate="handleInAnimateChartPie"
+      />
+    </div>
   </div>
 </template>
 

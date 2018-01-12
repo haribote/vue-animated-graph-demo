@@ -7,6 +7,7 @@ import { fetchNpbLeagues, fetchNpbTeams, fetchNpbNumberOfVisitorsHistory, fetchN
 
 import ChartLine from '../ChartLine/chart-line.vue'
 import ChartBar from '../ChartBar/chart-bar.vue'
+import ChartPie from '../ChartPie/chart-pie.vue'
 
 interface AppDataInterface {
   leagues: NpbLeagueInterface[]
@@ -15,6 +16,8 @@ interface AppDataInterface {
   pennantRaceHistory: NpbSeasonInterface[]
   barChartCurrentSeason: number
   isBarChartSeasonSelectorDisabled: boolean
+  pieChartCurrentSeason: number
+  isPieChartSeasonSelectorDisabled: boolean
 }
 
 export default Vue.extend({
@@ -22,7 +25,8 @@ export default Vue.extend({
 
   components: {
     ChartLine,
-    ChartBar
+    ChartBar,
+    ChartPie
   },
 
   data (): AppDataInterface {
@@ -32,7 +36,9 @@ export default Vue.extend({
       numberOfVisitorsHistory: [],
       pennantRaceHistory: [],
       barChartCurrentSeason: 0,
-      isBarChartSeasonSelectorDisabled: false
+      isBarChartSeasonSelectorDisabled: false,
+      pieChartCurrentSeason: 0,
+      isPieChartSeasonSelectorDisabled: false
     }
   },
 
@@ -64,12 +70,28 @@ export default Vue.extend({
     barChartPropsList (): { id: number, name: string, color: string }[] {
       return this.teams
         .map(({ id, name, color }) => ({ id, name, color }))
+    },
+    pieChartCurrentSeasonList (): number[] {
+      const currentSeason = this.numberOfVisitorsHistory.find(h => h.season === this.pieChartCurrentSeason)
+      if (!currentSeason) {
+        return []
+      }
+      return currentSeason
+        .data
+        .map(d => d.value / 1000)
+    },
+    pipeChartPropsList (): { id: number, name: string, color: string }[] {
+      return this.teams
+        .map(({ id, name, color }) => ({ id, name, color }))
     }
   },
 
   methods: {
     handleInAnimateChartBar (inAnimate: boolean) {
       this.isBarChartSeasonSelectorDisabled = inAnimate
+    },
+    handleInAnimateChartPie (inAnimate: boolean) {
+      this.isPieChartSeasonSelectorDisabled = inAnimate
     },
     fetchAll (): Promise<[NpbLeagueInterface[], NpbTeamInterface[], NpbSeasonInterface[], NpbSeasonInterface[]]> {
       return Promise.all([
@@ -92,7 +114,8 @@ export default Vue.extend({
           teams,
           numberOfVisitorsHistory,
           pennantRaceHistory,
-          barChartCurrentSeason: lastSeason
+          barChartCurrentSeason: lastSeason,
+          pieChartCurrentSeason: lastSeason
         })
       })
       .catch(err => console.error(err.message))
