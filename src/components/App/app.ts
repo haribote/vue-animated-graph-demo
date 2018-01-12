@@ -6,6 +6,7 @@ import transformNumberOfVisitorsHistory from '../../core/transform-number-of-vis
 import { fetchNpbLeagues, fetchNpbTeams, fetchNpbNumberOfVisitorsHistory, fetchNpbPennantRaceHistory } from '../../api/driver'
 
 import ChartLine from '../ChartLine/chart-line.vue'
+import ChartBar from '../ChartBar/chart-bar.vue'
 
 interface AppDataInterface {
   leagues: NpbLeagueInterface[]
@@ -18,7 +19,8 @@ export default Vue.extend({
   name: 'App',
 
   components: {
-    ChartLine
+    ChartLine,
+    ChartBar
   },
 
   data (): AppDataInterface {

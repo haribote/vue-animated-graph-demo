@@ -10,6 +10,12 @@
       <p>History of NPB's annual visitors.</p>
       <ChartLine :series="lineChartHistoryList" :lines="lineChartPropsList" :xAxisLabels="lineChartXAxisLabelList" yAxisUnit="x 1000" />
     </div>
+
+    <div class="container">
+      <h2>Bar chart</h2>
+      <p>Annual visitors per team</p>
+      <ChartBar />
+    </div>
   </div>
 </template>
 
