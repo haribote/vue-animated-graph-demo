@@ -48,6 +48,10 @@
         @in-animate="handleInAnimateChartPie"
       />
     </div>
+
+    <footer class="container">
+      <p><a href="https://github.com/haribote/vue-animated-graph-demo" target="_blank">Fork on GitHub</a></p>
+    </footer>
   </div>
 </template>
 
