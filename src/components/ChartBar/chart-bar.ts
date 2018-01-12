@@ -184,7 +184,7 @@ export default Vue.extend({
 
       const timeline = anime.timeline()
       this.displaySeriesLinePropsList
-        .forEach(({ d }: { d: string }, i) => {
+        .forEach(({ d }: { d: string }, i: number) => {
           const coords = { d }
           timeline.add({
             targets: coords,

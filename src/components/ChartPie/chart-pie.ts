@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import round from 'lodash.round'
+import * as anime from 'animejs'
 
 const PIE2 = 2 * Math.PI
 
@@ -31,6 +32,13 @@ export default Vue.extend({
     }
   },
 
+  data () {
+    return {
+      displayPercentOfSeries: [],
+      inAnimate: false
+    }
+  },
+
   computed: {
     viewBox (): string {
       return `${this.svgWidth / -2} ${this.svgHeight / -2} ${this.svgWidth} ${this.svgHeight}`
@@ -54,9 +62,23 @@ export default Vue.extend({
       const x1 = this.chartR * Math.cos(0)
       const y1 = this.chartR * Math.sin(0)
       let subTotal = 0
-      return this.percentOfSeries
+      return this.displayPercentOfSeries
         .map((value, i) => ({ value, team: i }))
-        .sort((a, b) => b.value - a.value)
+        .sort((a, b) => {
+          if (a.value < b.value) {
+            return 1
+          }
+          if (a.value > b.value) {
+            return -1
+          }
+          if (a.team < b.team) {
+            return -1
+          }
+          if (a.team > b.team) {
+            return 1
+          }
+          return 0
+        })
         .map(({ value, team }) => {
           const { color } = this.pies[team]
           const x2 = this.chartR * Math.cos(PIE2 * value)
@@ -77,8 +99,75 @@ export default Vue.extend({
     }
   },
 
+  watch: {
+    inAnimate (inAnimate) {
+      this.$emit('in-animate', inAnimate)
+    },
+    series () {
+      if (this.series.length !== this.displayPercentOfSeries.length) {
+        this.initializeDisplayPercentOfSeries()
+      } else {
+        this.animate()
+      }
+    }
+  },
+
+  methods: {
+    handleClickRunButton (): void {
+      this.initializeDisplayPercentOfSeries()
+      this.$nextTick(() => {
+        this.animate()
+      })
+    },
+
+    initializeDisplayPercentOfSeries (): void {
+      const average = 1 / this.percentOfSeries.length
+      this.displayPercentOfSeries
+        .splice(
+          0,
+          this.displayPercentOfSeries.length,
+          ...this.percentOfSeries.map((val, i) => i < this.percentOfSeries.length - 1 ? average : 1 - average * (this.percentOfSeries.length - 1))
+        )
+    },
+
+    animate () {
+      if (this.inAnimate) {
+        return
+      }
+
+      this.inAnimate = true
+
+      const timeline = anime.timeline()
+      this.displayPercentOfSeries
+        .forEach((value: number, i: number) => {
+          const coords = { percent: value }
+          timeline.add({
+            targets: coords,
+            percent: this.percentOfSeries[i],
+            easing: 'easeOutQuad',
+            duration: 500,
+            autoplay: false,
+            offset: 0,
+            run: () => {
+              (this.displayPercentOfSeries as number[]).splice(i, 1, coords.percent)
+            },
+            complete: () => {
+              (this.displayPercentOfSeries as number[]).splice(i, 1, this.percentOfSeries[i])
+            }
+          })
+        })
+
+      timeline.complete = () => {
+        this.inAnimate = false
+      }
+      timeline
+        .play()
+    }
+  },
+
   created () {
     console.log('created', 'ChartPie')
+    this.initializeDisplayPercentOfSeries()
   },
 
   mounted () {
