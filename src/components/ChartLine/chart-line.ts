@@ -199,7 +199,7 @@ export default Vue.extend({
           targets: coordsA,
           width: this.chartWidth,
           easing: 'linear',
-          duration: 300,
+          duration: 500,
           autoplay: false,
           run: () => {
             this.displayMaskWidth = coordsA.width
@@ -211,8 +211,8 @@ export default Vue.extend({
         .add({
           targets: coordsB,
           fillOpacity: 1,
-          easing: 'easeOutExpo',
-          duration: 300,
+          easing: 'easeOutQuad',
+          duration: 500,
           autoplay: false,
           run: () => {
             this.displayFillOpacity = coordsB.fillOpacity
