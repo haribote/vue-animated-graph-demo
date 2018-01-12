@@ -8,13 +8,29 @@
     <div class="container">
       <h2>Line chart</h2>
       <p>History of NPB's annual visitors.</p>
-      <ChartLine :series="lineChartHistoryList" :lines="lineChartPropsList" :xAxisLabels="lineChartXAxisLabelList" yAxisUnit="x 1000" />
+      <ChartLine
+        :series="lineChartHistoryList"
+        :lines="lineChartPropsList"
+        :xAxisLabels="lineChartXAxisLabelList"
+        yAxisUnit="x 1000"
+      />
     </div>
 
     <div class="container">
       <h2>Bar chart</h2>
       <p>Annual visitors per team</p>
-      <ChartBar />
+      <p>
+        <span>Season: </span>
+        <select v-model="barChartCurrentSeason" :disabled="isBarChartSeasonSelectorDisabled">
+          <option v-for="season in seasonOptionList" :key="season" :value="season">{{season}}</option>
+        </select>
+      </p>
+      <ChartBar
+        :series="barChartCurrentSeasonList"
+        :lines="barChartPropsList"
+        yAxisUnit="x 1000"
+        @in-animate="handleInAnimateChartBar"
+      />
     </div>
   </div>
 </template>

@@ -28,7 +28,7 @@
 
 .chart-bar__series-bar {
   fill: none;
-  stroke-width: 100px;
+  stroke-width: 50px;
 }
 
 @media screen and (max-width: 1140px) {

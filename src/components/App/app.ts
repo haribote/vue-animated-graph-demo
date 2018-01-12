@@ -13,6 +13,8 @@ interface AppDataInterface {
   teams: NpbTeamInterface[]
   numberOfVisitorsHistory: NpbSeasonInterface[]
   pennantRaceHistory: NpbSeasonInterface[]
+  barChartCurrentSeason: number
+  isBarChartSeasonSelectorDisabled: boolean
 }
 
 export default Vue.extend({
@@ -28,22 +30,16 @@ export default Vue.extend({
       leagues: [],
       teams: [],
       numberOfVisitorsHistory: [],
-      pennantRaceHistory: []
-    }
-  },
-
-  methods: {
-    fetchAll (): Promise<[NpbLeagueInterface[], NpbTeamInterface[], NpbSeasonInterface[], NpbSeasonInterface[]]> {
-      return Promise.all([
-        fetchNpbLeagues(),
-        fetchNpbTeams(),
-        fetchNpbNumberOfVisitorsHistory(),
-        fetchNpbPennantRaceHistory()
-      ])
+      pennantRaceHistory: [],
+      barChartCurrentSeason: 0,
+      isBarChartSeasonSelectorDisabled: false
     }
   },
 
   computed: {
+    seasonOptionList (): number[] {
+      return this.numberOfVisitorsHistory.map(h => h.season)
+    },
     lineChartHistoryList (): number[][] {
       return transformNumberOfVisitorsHistory(this.numberOfVisitorsHistory, this.teams, 1000)
     },
@@ -55,6 +51,33 @@ export default Vue.extend({
       return this.numberOfVisitorsHistory
         .map(s => s.season)
         .reverse()
+    },
+    barChartCurrentSeasonList (): number[] {
+      const currentSeason = this.numberOfVisitorsHistory.find(h => h.season === this.barChartCurrentSeason)
+      if (!currentSeason) {
+        return []
+      }
+      return currentSeason
+        .data
+        .map(d => d.value / 1000)
+    },
+    barChartPropsList (): { id: number, name: string, color: string }[] {
+      return this.teams
+        .map(({ id, name, color }) => ({ id, name, color }))
+    }
+  },
+
+  methods: {
+    handleInAnimateChartBar (inAnimate: boolean) {
+      this.isBarChartSeasonSelectorDisabled = inAnimate
+    },
+    fetchAll (): Promise<[NpbLeagueInterface[], NpbTeamInterface[], NpbSeasonInterface[], NpbSeasonInterface[]]> {
+      return Promise.all([
+        fetchNpbLeagues(),
+        fetchNpbTeams(),
+        fetchNpbNumberOfVisitorsHistory(),
+        fetchNpbPennantRaceHistory()
+      ])
     }
   },
 
@@ -62,12 +85,14 @@ export default Vue.extend({
     this.fetchAll()
       .then(resps => {
         const [leagues, teams, numberOfVisitorsHistory, pennantRaceHistory] = resps
+        const lastSeason = Math.max(...numberOfVisitorsHistory.map(h => h.season))
 
         Object.assign(this, {
           leagues,
           teams,
           numberOfVisitorsHistory,
-          pennantRaceHistory
+          pennantRaceHistory,
+          barChartCurrentSeason: lastSeason
         })
       })
       .catch(err => console.error(err.message))

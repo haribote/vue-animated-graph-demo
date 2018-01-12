@@ -228,5 +228,17 @@ export default Vue.extend({
       timeline
         .play()
     }
+  },
+
+  created () {
+    console.log('created', 'ChartLine')
+  },
+
+  mounted () {
+    console.log('mounted', 'ChartLine')
+  },
+
+  destroyed () {
+    console.log('destroyed', 'ChartLine')
   }
 })
